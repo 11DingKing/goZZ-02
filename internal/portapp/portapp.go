@@ -162,6 +162,7 @@ func (s *Service) rescheduleLocked(d *store.Data, voyageID string, rescheduledTo
 		a.Sequence = seq + 1
 		if shift := now.Sub(a.WindowStart); shift > 0 {
 			a.WindowStart = a.WindowStart.Add(shift)
+			a.WindowEnd = a.WindowEnd.Add(shift)
 		}
 		a.Status = domain.AptRescheduled
 		ids = append(ids, a.ID)
