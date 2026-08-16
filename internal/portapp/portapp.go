@@ -160,8 +160,14 @@ func (s *Service) rescheduleLocked(d *store.Data, voyageID string, rescheduledTo
 	var ids []string
 	for seq, a := range apts {
 		a.Sequence = seq + 1
+		// If the original window has already opened (or passed) by the time the
+		// ship is delayed, slide the whole window forward so it still starts no
+		// earlier than the re-appointment moment. Both ends move by the same
+		// delta so the window keeps its original length and stays valid
+		// (end > start); shifting only the start leaves end before start.
 		if shift := now.Sub(a.WindowStart); shift > 0 {
 			a.WindowStart = a.WindowStart.Add(shift)
+			a.WindowEnd = a.WindowEnd.Add(shift)
 		}
 		a.Status = domain.AptRescheduled
 		ids = append(ids, a.ID)
